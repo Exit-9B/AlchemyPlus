@@ -46,6 +46,26 @@ namespace Data
 				a_alchemyItem->model = def.model;
 			}
 		}
+
+		bool isPoison = a_alchemyItem->IsPoison();
+		bool impure = false;
+		for (auto& effect : a_alchemyItem->effects) {
+			bool isHostile = effect->baseEffect->data.flags.all(EffectFlag::kHostile);
+			if (isPoison != isHostile) {
+				impure = true;
+				break;
+			}
+		}
+
+		if (impure) {
+			a_alchemyItem->fullName = fmt::format("{} (Impure)", a_alchemyItem->GetFullName());
+		}
+		else if (a_alchemyItem->effects.size() > 1) {
+			a_alchemyItem->fullName = fmt::format(
+				"{} (+{})",
+				a_alchemyItem->GetFullName(),
+				a_alchemyItem->effects.size() - 1);
+		}
 	}
 
 	float ItemTraits::GetPotency(RE::Effect* a_effect)
