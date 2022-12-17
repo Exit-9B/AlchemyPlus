@@ -1,3 +1,6 @@
+#include "Data/ItemTraits.h"
+#include "Hooks/Alchemy.h"
+
 namespace
 {
 	void InitializeLog()
@@ -50,6 +53,30 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	logger::info("{} v{}"sv, Plugin::NAME, Plugin::VERSION.string());
 
 	SKSE::Init(a_skse);
+	SKSE::AllocTrampoline(43);
+
+	Hooks::Alchemy::Install();
+
+	auto messaging = SKSE::GetMessagingInterface();
+	messaging->RegisterListener([](auto msg)
+	{
+		switch (msg->type) {
+		case SKSE::MessagingInterface::kDataLoaded:
+		{
+			const auto itemTraits = Data::ItemTraits::GetSingleton();
+			const auto dataHandler = RE::TESDataHandler::GetSingleton();
+			if (dataHandler) {
+				itemTraits->AddItemDefinitions(dataHandler->LookupForm(0xE3E9A, "Skyrim.esm"sv));
+				itemTraits->AddItemDefinitions(dataHandler->LookupForm(0x74A37, "Skyrim.esm"sv));
+				itemTraits->AddItemDefinitions(dataHandler->LookupForm(0x74A29, "Skyrim.esm"sv));
+				itemTraits->AddItemDefinitions(dataHandler->LookupForm(0x74A23, "Skyrim.esm"sv));
+				itemTraits->AddItemDefinitions(dataHandler->LookupForm(0x74A2D, "Skyrim.esm"sv));
+				itemTraits->AddItemDefinitions(dataHandler->LookupForm(0x74A27, "Skyrim.esm"sv));
+				itemTraits->AddItemDefinitions(dataHandler->LookupForm(0x74A21, "Skyrim.esm"sv));
+			}
+		} break;
+		}
+	});
 
 	return true;
 }
