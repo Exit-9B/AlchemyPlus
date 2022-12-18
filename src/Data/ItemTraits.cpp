@@ -1,5 +1,7 @@
 #include "ItemTraits.h"
 
+#include "Translation/Translation.h"
+
 namespace Data
 {
 	ItemTraits* ItemTraits::GetSingleton()
@@ -66,7 +68,14 @@ namespace Data
 		}
 
 		if (impure) {
-			a_alchemyItem->fullName = fmt::format("{} (Impure)", a_alchemyItem->GetFullName());
+			std::string sImpure;
+			if (!Translation::Translate("$Impure", sImpure)) {
+				sImpure = "Impure"s;
+			}
+
+			a_alchemyItem ->fullName =
+				fmt::format("{} ({})", a_alchemyItem->GetFullName(), sImpure);
+
 			a_alchemyItem->data.costOverride = static_cast<int32_t>(cost);
 			a_alchemyItem->data.flags.set(RE::AlchemyItem::AlchemyFlag::kCostOverride);
 		}

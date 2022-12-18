@@ -7,6 +7,11 @@ namespace RE
 			inline static constexpr REL::ID CreateFromEffects{ 36179 };
 		}
 
+		namespace BSScaleformTranslator
+		{
+			inline static constexpr REL::ID GetCachedString{ 69188 };
+		}
+
 		namespace CraftingSubMenus
 		{
 			namespace AlchemyMenu

@@ -28,3 +28,10 @@ SKSEPlugin_Add(
 	PRECOMPILE_HEADERS
 		src/PCH/PCH.h
 )
+
+install(
+	FILES
+		"${PROJECT_SOURCE_DIR}/data/Interface/Translations/AlchemyPlus_ENGLISH.txt"
+	DESTINATION
+		"Interface/Translations"
+)
