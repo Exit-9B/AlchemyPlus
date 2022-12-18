@@ -2,9 +2,9 @@ namespace RE
 {
 	namespace Offset
 	{
-		namespace BGSCreatedObjectManager
+		namespace AlchemyItem
 		{
-			inline static constexpr REL::ID CreateAlchemyItem{ 36182 };
+			inline static constexpr REL::ID CreateFromEffects{ 36179 };
 		}
 	}
 }

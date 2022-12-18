@@ -3,9 +3,6 @@
 #include "Data/ItemTraits.h"
 #include "RE/Offset.h"
 
-#define NOGDI
-#include <xbyak/xbyak.h>
-
 namespace Hooks
 {
 	void Alchemy::Install()
@@ -16,38 +13,22 @@ namespace Hooks
 	void Alchemy::CreateItemPatch()
 	{
 		static const auto hook = REL::Relocation<std::uintptr_t>(
-			RE::Offset::BGSCreatedObjectManager::CreateAlchemyItem,
-			0x174);
+			RE::Offset::AlchemyItem::CreateFromEffects,
+			0x16F);
 
-		if (!REL::make_pattern<"4C 8B F0 8B 50 14">().match(hook.address())) {
+		if (!REL::make_pattern<"E8">().match(hook.address())) {
 			util::report_and_fail("Alchemy::CreateItemPatch failed to install"sv);
 		}
 
-		struct Patch : Xbyak::CodeGenerator
-		{
-			Patch()
-			{
-				mov(r14, rax);
-
-				mov(rcx, r14);
-				mov(rax, reinterpret_cast<std::uintptr_t>(&Alchemy::ModifyAlchemyItem));
-				call(rax);
-
-				mov(edx, ptr[rax + 0x14]);
-				jmp(ptr[rip]);
-				dq(hook.address() + 0x6);
-			}
-		};
-
-		Patch patch{};
-
 		auto& trampoline = SKSE::GetTrampoline();
-		trampoline.write_branch<6>(hook.address(), trampoline.allocate(patch));
+		_AddForm = trampoline.write_call<5>(hook.address(), &Alchemy::ModifyAlchemyItem);
 	}
 
-	RE::AlchemyItem* Alchemy::ModifyAlchemyItem(RE::AlchemyItem* a_alchemyItem)
+	void Alchemy::ModifyAlchemyItem(
+		RE::TESDataHandler* a_dataHandler,
+		RE::AlchemyItem* a_alchemyItem)
 	{
 		Data::ItemTraits::GetSingleton()->ModifyAlchemyItem(a_alchemyItem);
-		return a_alchemyItem;
+		return _AddForm(a_dataHandler, a_alchemyItem);
 	}
 }
