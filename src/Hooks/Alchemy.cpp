@@ -19,6 +19,10 @@ namespace Hooks
 			RE::Offset::BGSCreatedObjectManager::CreateAlchemyItem,
 			0x174);
 
+		if (!REL::make_pattern<"4C 8B F0 8B 50 14">().match(hook.address())) {
+			util::report_and_fail("Alchemy::CreateItemPatch failed to install"sv);
+		}
+
 		struct Patch : Xbyak::CodeGenerator
 		{
 			Patch()
