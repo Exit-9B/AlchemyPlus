@@ -49,16 +49,26 @@ namespace Data
 
 		bool isPoison = a_alchemyItem->IsPoison();
 		bool impure = false;
+		float cost = 0.0f;
 		for (auto& effect : a_alchemyItem->effects) {
 			bool isHostile = effect->baseEffect->data.flags.all(EffectFlag::kHostile);
-			if (isPoison != isHostile) {
-				impure = true;
-				break;
+			if (isPoison == isHostile) {
+				cost += effect->cost;
 			}
+			else {
+				cost -= effect->cost;
+				impure = true;
+			}
+		}
+
+		if (cost < 0.0f) {
+			cost = 0.0f;
 		}
 
 		if (impure) {
 			a_alchemyItem->fullName = fmt::format("{} (Impure)", a_alchemyItem->GetFullName());
+			a_alchemyItem->data.costOverride = static_cast<int32_t>(cost);
+			a_alchemyItem->data.flags.set(RE::AlchemyItem::AlchemyFlag::kCostOverride);
 		}
 		else if (a_alchemyItem->effects.size() > 1) {
 			a_alchemyItem->fullName = fmt::format(
