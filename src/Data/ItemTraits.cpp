@@ -26,9 +26,12 @@ namespace Data
 			}
 		}
 		else if (const auto alchemyItem = a_form->As<RE::AlchemyItem>()) {
-			auto costliestEffect = alchemyItem->GetCostliestEffectItem();
-			auto& baseEffect = costliestEffect->baseEffect;
-			float potency = GetPotency(costliestEffect);
+			if (alchemyItem->effects.size() != 1)
+				return;
+
+			auto effect = alchemyItem->effects[0];
+			auto& baseEffect = effect->baseEffect;
+			float potency = GetPotency(effect);
 
 			auto& defs = alchemyEffects[baseEffect];
 			defs.try_emplace(potency, ItemDefinition{ alchemyItem->fullName, alchemyItem->model });

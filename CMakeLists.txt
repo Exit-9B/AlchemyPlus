@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.24)
 
 project(
 	AlchemyPlus
-	VERSION 1.0.0
+	VERSION 1.0.1
 	LANGUAGES CXX
 )
 
@@ -31,7 +31,7 @@ SKSEPlugin_Add(
 
 install(
 	FILES
-		"${PROJECT_SOURCE_DIR}/data/Interface/Translations/AlchemyPlus_ENGLISH.txt"
+		"${PROJECT_SOURCE_DIR}/data/Interface/Translations/${PROJECT_NAME}_ENGLISH.txt"
 	DESTINATION
 		"Interface/Translations"
 )
