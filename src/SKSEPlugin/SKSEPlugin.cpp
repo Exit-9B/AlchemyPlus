@@ -32,8 +32,8 @@ namespace
 	}
 }
 
-extern "C" DLLEXPORT constinit auto SKSEPlugin_Version =
-[]() {
+extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []()
+{
 	SKSE::PluginVersionData v{};
 
 	v.PluginVersion(Plugin::VERSION);
@@ -58,40 +58,51 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	Hooks::Alchemy::Install();
 
 	auto messaging = SKSE::GetMessagingInterface();
-	messaging->RegisterListener([](auto msg)
-	{
-		switch (msg->type) {
-		case SKSE::MessagingInterface::kDataLoaded:
+	messaging->RegisterListener(
+		[](auto msg)
 		{
-			SKSE::Translation::ParseTranslation(Plugin::NAME.data());
+			switch (msg->type) {
+			case SKSE::MessagingInterface::kDataLoaded:
+			{
+				SKSE::Translation::ParseTranslation(Plugin::NAME.data());
 
-			const auto itemTraits = Data::ItemTraits::GetSingleton();
-			const auto dataHandler = RE::TESDataHandler::GetSingleton();
-			if (dataHandler) {
-				// LItemPotionAllBest
-				itemTraits->AddItemDefinitions(dataHandler->LookupForm(0xE3E9A, "Skyrim.esm"sv));
-				// LItemPotionCureHMS
-				itemTraits->AddItemDefinitions(dataHandler->LookupForm(0x65A72, "Skyrim.esm"sv));
-				// LItemPotionFortifyHealthBest
-				itemTraits->AddItemDefinitions(dataHandler->LookupForm(0x65A3E, "Skyrim.esm"sv));
-				// LItemPotionFortifyMagickaBest
-				itemTraits->AddItemDefinitions(dataHandler->LookupForm(0x65A3F, "Skyrim.esm"sv));
-				// LItemPotionFortifyStaminaBest
-				itemTraits->AddItemDefinitions(dataHandler->LookupForm(0x65A5A, "Skyrim.esm"sv));
-				// LItemPoisonDamageMagickaRateBest
-				itemTraits->AddItemDefinitions(dataHandler->LookupForm(0x74A29, "Skyrim.esm"sv));
-				// LItemPoisonDamageStaminaRateBest
-				itemTraits->AddItemDefinitions(dataHandler->LookupForm(0x74A23, "Skyrim.esm"sv));
-				// LItemPoisonDamageHealthLingeringBest
-				itemTraits->AddItemDefinitions(dataHandler->LookupForm(0x74A2D, "Skyrim.esm"sv));
-				// LItemPoisonDamageMagickaLingeringBest
-				itemTraits->AddItemDefinitions(dataHandler->LookupForm(0x74A27, "Skyrim.esm"sv));
-				// LItemPoisonDamageStaminaLingeringBest
-				itemTraits->AddItemDefinitions(dataHandler->LookupForm(0x74A21, "Skyrim.esm"sv));
+				const auto itemTraits = Data::ItemTraits::GetSingleton();
+				const auto dataHandler = RE::TESDataHandler::GetSingleton();
+				if (dataHandler) {
+					// LItemPotionAllBest
+					itemTraits->AddItemDefinitions(
+						dataHandler->LookupForm(0xE3E9A, "Skyrim.esm"sv));
+					// LItemPotionCureHMS
+					itemTraits->AddItemDefinitions(
+						dataHandler->LookupForm(0x65A72, "Skyrim.esm"sv));
+					// LItemPotionFortifyHealthBest
+					itemTraits->AddItemDefinitions(
+						dataHandler->LookupForm(0x65A3E, "Skyrim.esm"sv));
+					// LItemPotionFortifyMagickaBest
+					itemTraits->AddItemDefinitions(
+						dataHandler->LookupForm(0x65A3F, "Skyrim.esm"sv));
+					// LItemPotionFortifyStaminaBest
+					itemTraits->AddItemDefinitions(
+						dataHandler->LookupForm(0x65A5A, "Skyrim.esm"sv));
+					// LItemPoisonDamageMagickaRateBest
+					itemTraits->AddItemDefinitions(
+						dataHandler->LookupForm(0x74A29, "Skyrim.esm"sv));
+					// LItemPoisonDamageStaminaRateBest
+					itemTraits->AddItemDefinitions(
+						dataHandler->LookupForm(0x74A23, "Skyrim.esm"sv));
+					// LItemPoisonDamageHealthLingeringBest
+					itemTraits->AddItemDefinitions(
+						dataHandler->LookupForm(0x74A2D, "Skyrim.esm"sv));
+					// LItemPoisonDamageMagickaLingeringBest
+					itemTraits->AddItemDefinitions(
+						dataHandler->LookupForm(0x74A27, "Skyrim.esm"sv));
+					// LItemPoisonDamageStaminaLingeringBest
+					itemTraits->AddItemDefinitions(
+						dataHandler->LookupForm(0x74A21, "Skyrim.esm"sv));
+				}
+			} break;
 			}
-		} break;
-		}
-	});
+		});
 
 	return true;
 }

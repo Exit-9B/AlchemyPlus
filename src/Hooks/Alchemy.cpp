@@ -17,9 +17,8 @@ namespace Hooks
 
 	void Alchemy::CreateItemPatch()
 	{
-		static const auto hook = REL::Relocation<std::uintptr_t>(
-			RE::Offset::AlchemyItem::CreateFromEffects,
-			0x16F);
+		static const auto hook =
+			REL::Relocation<std::uintptr_t>(RE::Offset::AlchemyItem::CreateFromEffects, 0x16F);
 
 		if (!REL::make_pattern<"E8">().match(hook.address())) {
 			util::report_and_fail("Alchemy::CreateItemPatch failed to install"sv);

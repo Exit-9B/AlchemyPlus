@@ -74,7 +74,7 @@ namespace Data
 				sImpure = "Impure"s;
 			}
 
-			a_alchemyItem ->fullName =
+			a_alchemyItem->fullName =
 				fmt::format("{} ({})", a_alchemyItem->GetFullName(), sImpure);
 
 			a_alchemyItem->data.costOverride = static_cast<int32_t>(cost);
