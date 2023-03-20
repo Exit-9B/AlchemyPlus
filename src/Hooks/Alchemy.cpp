@@ -12,7 +12,8 @@ namespace Hooks
 	void Alchemy::Install()
 	{
 		CreateItemPatch();
-		ModEffectivenessPatch();
+		RoundMagnitudePatch();
+		RoundDurationPatch();
 	}
 
 	void Alchemy::CreateItemPatch()
@@ -28,56 +29,72 @@ namespace Hooks
 		_AddForm = trampoline.write_call<5>(hook.address(), &Alchemy::ModifyAlchemyItem);
 	}
 
-	void Alchemy::ModEffectivenessPatch()
+	void Alchemy::RoundMagnitudePatch()
 	{
-		static const auto hook1 = REL::Relocation<std::uintptr_t>(
+		static const auto hook = REL::Relocation<std::uintptr_t>(
 			RE::Offset::CraftingSubMenus::AlchemyMenu::ModEffectivenessFunctor::Invoke,
 			0xA8);
 
-		static const auto hook2 = REL::Relocation<std::uintptr_t>(
-			RE::Offset::CraftingSubMenus::AlchemyMenu::ModEffectivenessFunctor::Invoke,
-			0x120);
+		if (!REL::make_pattern<"F3 0F 11 44 24 38">().match(hook.address())) {
+			util::report_and_fail("Failed to install Alchemy::RoundMagnitudePatch");
+		}
 
-		struct Patch1 : Xbyak::CodeGenerator
+		struct Patch : Xbyak::CodeGenerator
 		{
-			Patch1()
+			Patch()
 			{
 				mov(rax, reinterpret_cast<std::uintptr_t>(&Alchemy::CalculateMagnitude));
 				call(rax);
 				mov(rdx, ptr[rbx + 0x10]);
 				movss(ptr[rsp + 0x38], xmm0);
 				jmp(ptr[rip]);
-				dq(hook1.address() + 0x6);
+				dq(hook.address() + 0x6);
 			}
 		};
 
-		Patch1 patch1{};
+		auto patch = new Patch();
+		patch->ready();
 
-		struct Patch2 : Xbyak::CodeGenerator
+		auto& trampoline = SKSE::GetTrampoline();
+		trampoline.write_branch<6>(hook.address(), patch->getCode());
+	}
+
+	void Alchemy::RoundDurationPatch()
+	{
+		static const auto hook = REL::Relocation<std::uintptr_t>(
+			RE::Offset::CraftingSubMenus::AlchemyMenu::ModEffectivenessFunctor::Invoke,
+			0x120);
+
+		if (!REL::make_pattern<"0F 5B C0 F3 0F 2C F8">().match(hook.address())) {
+			util::report_and_fail("Failed to install Alchemy::RoundDurationPatch");
+		}
+
+		struct Patch : Xbyak::CodeGenerator
 		{
-			Patch2()
+			Patch()
 			{
 				cvtdq2ps(xmm0, xmm0);
 				mov(rax, reinterpret_cast<std::uintptr_t>(&Alchemy::CalculateDuration));
 				call(rax);
 				cvttss2si(edi, xmm0);
 				jmp(ptr[rip]);
-				dq(hook2.address() + 0x7);
+				dq(hook.address() + 0x7);
 			}
 		};
 
-		Patch2 patch2{};
+		auto patch = new Patch();
+		patch->ready();
 
 		auto& trampoline = SKSE::GetTrampoline();
-		trampoline.write_branch<6>(hook1.address(), trampoline.allocate(patch1));
-		trampoline.write_branch<6>(hook2.address(), trampoline.allocate(patch2));
+		trampoline.write_branch<6>(hook.address(), patch->getCode());
 	}
 
 	void Alchemy::ModifyAlchemyItem(
 		RE::TESDataHandler* a_dataHandler,
 		RE::AlchemyItem* a_alchemyItem)
 	{
-		Data::ItemTraits::GetSingleton()->ModifyAlchemyItem(a_alchemyItem);
+		auto itemTraits = Data::ItemTraits::GetSingleton();
+		itemTraits->ModifyAlchemyItem(a_alchemyItem);
 		return _AddForm(a_dataHandler, a_alchemyItem);
 	}
 

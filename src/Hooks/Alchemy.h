@@ -12,8 +12,10 @@ namespace Hooks
 	private:
 		// Replace item model and name
 		static void CreateItemPatch();
-		// Round magnitude/duration value when creating effects
-		static void ModEffectivenessPatch();
+		// Round magnitude when creating effects
+		static void RoundMagnitudePatch();
+		// Round duration when creating effects
+		static void RoundDurationPatch();
 
 		static void ModifyAlchemyItem(
 			RE::TESDataHandler* a_dataHandler,
