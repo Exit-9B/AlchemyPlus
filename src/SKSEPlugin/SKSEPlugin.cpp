@@ -1,5 +1,6 @@
 #include "Data/ItemTraits.h"
 #include "Hooks/Alchemy.h"
+#include "Settings/INISettings.h"
 
 namespace
 {
@@ -54,6 +55,8 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 
 	SKSE::Init(a_skse);
 	SKSE::AllocTrampoline(30);
+
+	Settings::INISettings::GetSingleton()->LoadSettings();
 
 	Hooks::Alchemy::Install();
 

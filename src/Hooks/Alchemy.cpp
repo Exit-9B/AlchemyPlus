@@ -2,6 +2,7 @@
 
 #include "Data/ItemTraits.h"
 #include "RE/Offset.h"
+#include "Settings/INISettings.h"
 
 #include <xbyak/xbyak.h>
 
@@ -11,9 +12,14 @@ namespace Hooks
 {
 	void Alchemy::Install()
 	{
+		const auto iniSettings = Settings::INISettings::GetSingleton();
+
 		CreateItemPatch();
-		RoundMagnitudePatch();
-		RoundDurationPatch();
+
+		if (iniSettings->bEnableRoundedPotency) {
+			RoundMagnitudePatch();
+			RoundDurationPatch();
+		}
 	}
 
 	void Alchemy::CreateItemPatch()
@@ -100,8 +106,9 @@ namespace Hooks
 
 	float Alchemy::CalculateMagnitude(float a_magnitude)
 	{
-		constexpr float roundThreshold = 25.0f;
-		constexpr float roundMult = 5.0f;
+		const auto iniSettings = Settings::INISettings::GetSingleton();
+		float roundThreshold = iniSettings->fMagnitudeThreshold;
+		float roundMult = iniSettings->fMagnitudeMult;
 
 		float result = a_magnitude;
 		if (a_magnitude > roundThreshold) {
@@ -114,8 +121,9 @@ namespace Hooks
 
 	float Alchemy::CalculateDuration(float a_duration)
 	{
-		constexpr float roundThreshold = 15.0f;
-		constexpr float roundMult = 5.0f;
+		const auto iniSettings = Settings::INISettings::GetSingleton();
+		float roundThreshold = iniSettings->fDurationThreshold;
+		float roundMult = iniSettings->fDurationMult;
 
 		float result = a_duration;
 		if (a_duration > roundThreshold) {

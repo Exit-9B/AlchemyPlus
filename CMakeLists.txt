@@ -29,11 +29,20 @@ SKSEPlugin_Add(
 		src/PCH/PCH.h
 )
 
+find_path(SIMPLEINI_INCLUDE_DIRS "ConvertUTF.c")
+
 install(
 	FILES
 		"${PROJECT_SOURCE_DIR}/data/Interface/Translations/${PROJECT_NAME}_ENGLISH.txt"
 	DESTINATION
 		"Interface/Translations"
+)
+
+install(
+	FILES
+		"${PROJECT_SOURCE_DIR}/data/SKSE/Plugins/${PROJECT_NAME}.ini"
+	DESTINATION
+		"SKSE/Plugins"
 )
 
 set(CPACK_GENERATOR "7Z")

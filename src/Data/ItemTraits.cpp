@@ -1,5 +1,7 @@
 #include "ItemTraits.h"
 
+#include "Settings/INISettings.h"
+
 namespace Data
 {
 	ItemTraits* ItemTraits::GetSingleton()
@@ -38,15 +40,23 @@ namespace Data
 
 	void ItemTraits::ModifyAlchemyItem(RE::AlchemyItem* a_alchemyItem)
 	{
-		auto costliestEffect = a_alchemyItem->GetCostliestEffectItem();
-		auto baseEffect = costliestEffect->baseEffect;
-		float potency = GetPotency(costliestEffect);
+		const auto iniSettings = Settings::INISettings::GetSingleton();
 
-		if (auto i = alchemyEffects.find(baseEffect); i != alchemyEffects.end()) {
-			ItemDefinition def;
-			if (util::find_closest_value(i->second, potency, def)) {
-				a_alchemyItem->fullName = def.name;
-				a_alchemyItem->model = def.model;
+		if (iniSettings->bEnableBetterModels || iniSettings->bEnableBetterNames) {
+			auto costliestEffect = a_alchemyItem->GetCostliestEffectItem();
+			auto baseEffect = costliestEffect->baseEffect;
+			float potency = GetPotency(costliestEffect);
+
+			if (auto i = alchemyEffects.find(baseEffect); i != alchemyEffects.end()) {
+				ItemDefinition def;
+				if (util::find_closest_value(i->second, potency, def)) {
+					if (iniSettings->bEnableBetterNames) {
+						a_alchemyItem->fullName = def.name;
+					}
+					if (iniSettings->bEnableBetterModels) {
+						a_alchemyItem->model = def.model;
+					}
+				}
 			}
 		}
 
@@ -69,22 +79,38 @@ namespace Data
 		}
 
 		if (impure) {
-			std::string sImpure;
-			if (!SKSE::Translation::Translate("$Impure", sImpure)) {
-				sImpure = "Impure"s;
+
+			if (iniSettings->bEnableMixtureNames) {
+				std::string newName;
+
+				if (SKSE::Translation::Translate(
+						fmt::format("$AlchemyPlus_Impure{{{}}}", a_alchemyItem->GetFullName()),
+						newName)) {
+
+					a_alchemyItem->fullName = newName;
+				}
 			}
 
-			a_alchemyItem->fullName =
-				fmt::format("{} ({})", a_alchemyItem->GetFullName(), sImpure);
-
-			a_alchemyItem->data.costOverride = static_cast<int32_t>(cost);
-			a_alchemyItem->data.flags.set(RE::AlchemyItem::AlchemyFlag::kCostOverride);
+			if (iniSettings->bEnableImpureCostFix) {
+				a_alchemyItem->data.costOverride = static_cast<int32_t>(cost);
+				a_alchemyItem->data.flags.set(RE::AlchemyItem::AlchemyFlag::kCostOverride);
+			}
 		}
 		else if (a_alchemyItem->effects.size() > 1) {
-			a_alchemyItem->fullName = fmt::format(
-				"{} (+{})",
-				a_alchemyItem->GetFullName(),
-				a_alchemyItem->effects.size() - 1);
+
+			if (iniSettings->bEnableMixtureNames) {
+				std::string newName;
+
+				if (SKSE::Translation::Translate(
+						fmt::format(
+							"$AlchemyPlus_Mixed{{{}}}{{{}}}",
+							a_alchemyItem->GetFullName(),
+							a_alchemyItem->effects.size() - 1),
+						newName)) {
+
+					a_alchemyItem->fullName = newName;
+				}
+			}
 		}
 	}
 
