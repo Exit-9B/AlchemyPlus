@@ -1,7 +1,5 @@
 #include "ItemTraits.h"
 
-#include "Translation/Translation.h"
-
 namespace Data
 {
 	ItemTraits* ItemTraits::GetSingleton()
@@ -72,7 +70,7 @@ namespace Data
 
 		if (impure) {
 			std::string sImpure;
-			if (!Translation::Translate("$Impure", sImpure)) {
+			if (!SKSE::Translation::Translate("$Impure", sImpure)) {
 				sImpure = "Impure"s;
 			}
 

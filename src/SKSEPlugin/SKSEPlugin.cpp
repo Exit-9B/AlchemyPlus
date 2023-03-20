@@ -1,6 +1,5 @@
 #include "Data/ItemTraits.h"
 #include "Hooks/Alchemy.h"
-#include "Translation/Translation.h"
 
 namespace
 {
@@ -64,7 +63,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 		switch (msg->type) {
 		case SKSE::MessagingInterface::kDataLoaded:
 		{
-			Translation::ParseTranslation(Plugin::NAME.data());
+			SKSE::Translation::ParseTranslation(Plugin::NAME.data());
 
 			const auto itemTraits = Data::ItemTraits::GetSingleton();
 			const auto dataHandler = RE::TESDataHandler::GetSingleton();
