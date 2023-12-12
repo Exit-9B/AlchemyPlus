@@ -1,6 +1,5 @@
-#include "Data/ItemTraits.h"
 #include "Hooks/Alchemy.h"
-#include "Settings/INISettings.h"
+#include "Settings/UserSettings.h"
 
 namespace
 {
@@ -54,55 +53,18 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	logger::info("{} v{}"sv, Plugin::NAME, Plugin::VERSION.string());
 
 	SKSE::Init(a_skse);
-	SKSE::AllocTrampoline(30);
-
-	Settings::INISettings::GetSingleton()->LoadSettings();
+	SKSE::AllocTrampoline(14);
 
 	Hooks::Alchemy::Install();
 
-	auto messaging = SKSE::GetMessagingInterface();
-	messaging->RegisterListener(
+	SKSE::GetMessagingInterface()->RegisterListener(
 		[](auto msg)
 		{
 			switch (msg->type) {
 			case SKSE::MessagingInterface::kDataLoaded:
 			{
 				SKSE::Translation::ParseTranslation(Plugin::NAME.data());
-
-				const auto itemTraits = Data::ItemTraits::GetSingleton();
-				const auto dataHandler = RE::TESDataHandler::GetSingleton();
-				if (dataHandler) {
-					// LItemPotionAllBest
-					itemTraits->AddItemDefinitions(
-						dataHandler->LookupForm(0xE3E9A, "Skyrim.esm"sv));
-					// LItemPotionCureHMS
-					itemTraits->AddItemDefinitions(
-						dataHandler->LookupForm(0x65A72, "Skyrim.esm"sv));
-					// LItemPotionFortifyHealthBest
-					itemTraits->AddItemDefinitions(
-						dataHandler->LookupForm(0x65A3E, "Skyrim.esm"sv));
-					// LItemPotionFortifyMagickaBest
-					itemTraits->AddItemDefinitions(
-						dataHandler->LookupForm(0x65A3F, "Skyrim.esm"sv));
-					// LItemPotionFortifyStaminaBest
-					itemTraits->AddItemDefinitions(
-						dataHandler->LookupForm(0x65A5A, "Skyrim.esm"sv));
-					// LItemPoisonDamageMagickaRateBest
-					itemTraits->AddItemDefinitions(
-						dataHandler->LookupForm(0x74A29, "Skyrim.esm"sv));
-					// LItemPoisonDamageStaminaRateBest
-					itemTraits->AddItemDefinitions(
-						dataHandler->LookupForm(0x74A23, "Skyrim.esm"sv));
-					// LItemPoisonDamageHealthLingeringBest
-					itemTraits->AddItemDefinitions(
-						dataHandler->LookupForm(0x74A2D, "Skyrim.esm"sv));
-					// LItemPoisonDamageMagickaLingeringBest
-					itemTraits->AddItemDefinitions(
-						dataHandler->LookupForm(0x74A27, "Skyrim.esm"sv));
-					// LItemPoisonDamageStaminaLingeringBest
-					itemTraits->AddItemDefinitions(
-						dataHandler->LookupForm(0x74A21, "Skyrim.esm"sv));
-				}
+				Settings::UserSettings::GetSingleton()->LoadSettings();
 			} break;
 			}
 		});

@@ -1,0 +1,37 @@
+{
+  "mixtureNames": {
+    "$comment": "Modify names to reflect additional effects/impurities.",
+    "enabled": true
+  },
+  "impureCostFix": {
+    "$comment": "Impurities in mixtures subtract from the cost instead of adding to it.",
+    "enabled": true
+  },
+  "copyExemplars": {
+    "$comment": "Swap models and names of crafted potions to the nearest exemplar.",
+    "enabled": true,
+    "exemplars": [
+       "Skyrim.esm|E3E9A",
+       "Skyrim.esm|65A72",
+       "Skyrim.esm|65A3E",
+       "Skyrim.esm|65A3F",
+       "Skyrim.esm|65A5A",
+       "Skyrim.esm|74A29",
+       "Skyrim.esm|74A23",
+       "Skyrim.esm|74A2D",
+       "Skyrim.esm|74A27",
+       "Skyrim.esm|74A21"
+    ]
+  },
+  "roundedPotency": {
+    "$comment": "Round effect potency to a multiple above a threshold.",
+    "enabled": true,
+    "magnitudeThreshold": 25.0,
+    "magnitudeMult": 5.0,
+    "durationThreshold": 15.0,
+    "durationMult": 5.0,
+    "overrides": {
+      "$comment": "Define setting overrides per alchemy effect."
+    }
+  }
+}

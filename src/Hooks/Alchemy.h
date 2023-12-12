@@ -12,19 +12,16 @@ namespace Hooks
 	private:
 		// Replace item model and name
 		static void CreateItemPatch();
-		// Round magnitude when creating effects
-		static void RoundMagnitudePatch();
-		// Round duration when creating effects
-		static void RoundDurationPatch();
+		// Round magnitude/duration when creating effects
+		static void RoundEffectivenessPatch();
 
 		static void ModifyAlchemyItem(
 			RE::TESDataHandler* a_dataHandler,
 			RE::AlchemyItem* a_alchemyItem);
 
-		static float CalculateMagnitude(float a_magnitude);
-
-		static float CalculateDuration(float a_duration);
+		static std::int32_t ModEffectiveness(void* a_functor, RE::Effect* a_effect);
 
 		inline static REL::Relocation<decltype(&ModifyAlchemyItem)> _AddForm;
+		inline static REL::Relocation<decltype(&ModEffectiveness)> _ModEffectiveness;
 	};
 }
