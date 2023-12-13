@@ -4,7 +4,7 @@ namespace RE
 	{
 		namespace AlchemyItem
 		{
-			inline static constexpr auto CreateFromEffects = REL::ID(36179);
+			inline static constexpr auto CreateFromEffects = util::MakeOffset(36179, 0x5A7ED0);
 		}
 
 		namespace CraftingSubMenus
@@ -13,10 +13,10 @@ namespace RE
 			{
 				namespace ModEffectivenessFunctor
 				{
-					inline static constexpr auto Vtbl = REL::ID(215208);
+					inline static constexpr auto Vtbl = util::MakeOffset(215208, 0x1733810);
 				}
 
-				inline static constexpr auto SelectItem = REL::ID(51412);
+				inline static constexpr auto SelectItem = util::MakeOffset(51412, 0x89C740);
 			}
 		}
 	}

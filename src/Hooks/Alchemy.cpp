@@ -16,9 +16,9 @@ namespace Hooks
 
 	void Alchemy::KnownFailurePatch()
 	{
-		const auto hook = REL::Relocation<std::uintptr_t>(
+		const auto hook = util::MakeHook(
 			RE::Offset::CraftingSubMenus::AlchemyMenu::SelectItem,
-			0x19F);
+			IF_SKYRIMSE(0x19F, 0x159));
 
 		if (!REL::make_pattern<"E8">().match(hook.address())) {
 			util::report_and_fail("Alchemy::KnownFailurePatch failed to install"sv);
@@ -31,7 +31,7 @@ namespace Hooks
 	void Alchemy::CreateItemPatch()
 	{
 		const auto hook =
-			REL::Relocation<std::uintptr_t>(RE::Offset::AlchemyItem::CreateFromEffects, 0x16F);
+			util::MakeHook(RE::Offset::AlchemyItem::CreateFromEffects, IF_SKYRIMSE(0x16F, 0x197));
 
 		if (!REL::make_pattern<"E8">().match(hook.address())) {
 			util::report_and_fail("Alchemy::CreateItemPatch failed to install"sv);
