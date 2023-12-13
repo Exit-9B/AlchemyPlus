@@ -58,6 +58,15 @@ namespace Settings
 		return dataHandler->LookupForm(rawFormID, plugin);
 	}
 
+	static bool ReadSetting(UserSettings::Setting& a_setting, const Json::Value& a_value)
+	{
+		if (!a_value.isObject()) {
+			return false;
+		}
+
+		return a_setting.enabled = a_value["enabled"].asBool();
+	}
+
 	void UserSettings::LoadSettings()
 	{
 		RE::BSResourceNiBinaryStream fileStream{
@@ -80,21 +89,11 @@ namespace Settings
 			return;
 		}
 
-		const auto& config_mixtureNames = root["mixtureNames"];
-		if (config_mixtureNames.isObject()) {
-			mixtureNames.enabled = config_mixtureNames["enabled"].asBool();
-		}
+		ReadSetting(mixtureNames, root["mixtureNames"]);
+		ReadSetting(impureCostFix, root["impureCostFix"]);
 
-		const auto& config_impureCostFix = root["impureCostFix"];
-		if (config_impureCostFix.isObject()) {
-			impureCostFix.enabled = config_impureCostFix["enabled"].asBool();
-		}
-
-		const auto& config_copyExemplars = root["copyExemplars"];
-		if (config_copyExemplars.isObject()) {
-			copyExemplars.enabled = config_copyExemplars["enabled"].asBool();
-
-			const auto& exemplars = config_copyExemplars["exemplars"];
+		if (auto config = root["copyExemplars"]; ReadSetting(copyExemplars, config)) {
+			const auto& exemplars = config["exemplars"];
 			if (exemplars.isArray()) {
 				for (const auto& exemplar : exemplars) {
 					const auto identifier = exemplar.asString();
@@ -104,17 +103,13 @@ namespace Settings
 			}
 		}
 
-		const auto& config_roundedPotency = root["roundedPotency"];
-		if (config_roundedPotency.isObject()) {
-			roundedPotency.enabled = config_roundedPotency["enabled"].asBool();
-			roundedPotency.magnitudeThreshold =
-				config_roundedPotency["magnitudeThreshold"].asFloat();
-			roundedPotency.magnitudeMult = config_roundedPotency["magnitudeMult"].asFloat();
-			roundedPotency.durationThreshold =
-				config_roundedPotency["durationThreshold"].asFloat();
-			roundedPotency.durationMult = config_roundedPotency["durationMult"].asFloat();
+		if (auto config = root["roundedPotency"]; ReadSetting(roundedPotency, config)) {
+			roundedPotency.magnitudeThreshold = config["magnitudeThreshold"].asFloat();
+			roundedPotency.magnitudeMult = config["magnitudeMult"].asFloat();
+			roundedPotency.durationThreshold = config["durationThreshold"].asFloat();
+			roundedPotency.durationMult = config["durationMult"].asFloat();
 
-			const auto& overrides = config_roundedPotency["overrides"];
+			const auto& overrides = config["overrides"];
 			for (const auto& identifier : overrides.getMemberNames()) {
 				if (identifier.empty() || identifier[0] == '$') {
 					continue;
@@ -126,26 +121,26 @@ namespace Settings
 					continue;
 				}
 
-				const auto& setting = overrides[identifier];
-				if (!setting.isObject()) {
+				const auto& effectOverride = overrides[identifier];
+				if (!effectOverride.isObject()) {
 					continue;
 				}
 
-				if (setting.isMember("magnitudeThreshold")) {
+				if (effectOverride.isMember("magnitudeThreshold")) {
 					roundedPotency.magnitudeOverrides[baseEffect].threshold =
-						setting["magnitudeThreshold"].asFloat();
+						effectOverride["magnitudeThreshold"].asFloat();
 				}
-				if (setting.isMember("magnitudeMult")) {
+				if (effectOverride.isMember("magnitudeMult")) {
 					roundedPotency.magnitudeOverrides[baseEffect].mult =
-						setting["magnitudeMult"].asFloat();
+						effectOverride["magnitudeMult"].asFloat();
 				}
-				if (setting.isMember("durationThreshold")) {
+				if (effectOverride.isMember("durationThreshold")) {
 					roundedPotency.durationOverrides[baseEffect].threshold =
-						setting["durationThreshold"].asFloat();
+						effectOverride["durationThreshold"].asFloat();
 				}
-				if (setting.isMember("durationMult")) {
+				if (effectOverride.isMember("durationMult")) {
 					roundedPotency.durationOverrides[baseEffect].mult =
-						setting["durationMult"].asFloat();
+						effectOverride["durationMult"].asFloat();
 				}
 			}
 		}
@@ -187,9 +182,9 @@ namespace Settings
 			if (alchemyItem->effects.size() != 1)
 				return;
 
-			auto effect = alchemyItem->effects[0];
-			auto& baseEffect = effect->baseEffect;
-			float potency = GetPotency(effect);
+			const auto effect = alchemyItem->effects[0];
+			const auto& baseEffect = effect->baseEffect;
+			const float potency = GetPotency(effect);
 
 			auto& defs = effects_[baseEffect];
 			defs.try_emplace(potency, ItemDefinition{ alchemyItem->fullName, alchemyItem->model });
@@ -203,7 +198,7 @@ namespace Settings
 		auto baseEffect = costliestEffect->baseEffect;
 		float potency = GetPotency(costliestEffect);
 
-		if (auto it = effects_.find(baseEffect); it != effects_.end()) {
+		if (const auto it = effects_.find(baseEffect); it != effects_.end()) {
 			ItemDefinition def;
 			if (util::find_closest_value(it->second, potency, def)) {
 				return ItemDefinition{ def.name, def.model };
@@ -218,8 +213,8 @@ namespace Settings
 		const UserSettings::OverrideMap& a_overrides,
 		const RE::EffectSetting* a_baseEffect)
 	{
-		if (auto it = a_overrides.find(a_baseEffect); it != a_overrides.end()) {
-			auto setting = it->second;
+		if (const auto it = a_overrides.find(a_baseEffect); it != a_overrides.end()) {
+			const auto setting = it->second;
 			if (setting.threshold.has_value()) {
 				a_rounding.threshold = setting.threshold.value();
 			}
