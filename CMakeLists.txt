@@ -38,7 +38,15 @@ target_link_libraries(
 
 install(
 	FILES
+		"${PROJECT_SOURCE_DIR}/data/Interface/Translations/${PROJECT_NAME}_CZECH.txt"
 		"${PROJECT_SOURCE_DIR}/data/Interface/Translations/${PROJECT_NAME}_ENGLISH.txt"
+		"${PROJECT_SOURCE_DIR}/data/Interface/Translations/${PROJECT_NAME}_FRENCH.txt"
+		"${PROJECT_SOURCE_DIR}/data/Interface/Translations/${PROJECT_NAME}_GERMAN.txt"
+		"${PROJECT_SOURCE_DIR}/data/Interface/Translations/${PROJECT_NAME}_ITALIAN.txt"
+		"${PROJECT_SOURCE_DIR}/data/Interface/Translations/${PROJECT_NAME}_JAPANESE.txt"
+		"${PROJECT_SOURCE_DIR}/data/Interface/Translations/${PROJECT_NAME}_POLISH.txt"
+		"${PROJECT_SOURCE_DIR}/data/Interface/Translations/${PROJECT_NAME}_RUSSIAN.txt"
+		"${PROJECT_SOURCE_DIR}/data/Interface/Translations/${PROJECT_NAME}_SPANISH.txt"
 	DESTINATION
 		"Interface/Translations"
 )
