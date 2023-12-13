@@ -15,6 +15,8 @@ namespace RE
 				{
 					inline static constexpr auto Vtbl = REL::ID(215208);
 				}
+
+				inline static constexpr auto SelectItem = REL::ID(51412);
 			}
 		}
 	}

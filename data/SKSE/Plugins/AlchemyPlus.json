@@ -1,4 +1,8 @@
 {
+  "knownFailureFix": {
+    "$comment": "Display known failures in UI between ingredients with all effects known.",
+    "enabled": true
+  },
   "mixtureNames": {
     "$comment": "Modify names to reflect additional effects/impurities.",
     "enabled": true

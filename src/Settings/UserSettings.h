@@ -64,6 +64,8 @@ namespace Settings
 		using OverrideMap = std::map<const RE::EffectSetting*, RoundingOverride>;
 
 	public:
+		Setting knownFailureFix;
+
 		Setting mixtureNames;
 
 		Setting impureCostFix;

@@ -9,13 +9,28 @@ namespace Hooks
 {
 	void Alchemy::Install()
 	{
+		KnownFailurePatch();
 		CreateItemPatch();
 		RoundEffectivenessPatch();
 	}
 
+	void Alchemy::KnownFailurePatch()
+	{
+		const auto hook = REL::Relocation<std::uintptr_t>(
+			RE::Offset::CraftingSubMenus::AlchemyMenu::SelectItem,
+			0x19F);
+
+		if (!REL::make_pattern<"E8">().match(hook.address())) {
+			util::report_and_fail("Alchemy::KnownFailurePatch failed to install"sv);
+		}
+
+		auto& trampoline = SKSE::GetTrampoline();
+		_IsKnownFailure = trampoline.write_call<5>(hook.address(), &Alchemy::IsKnownFailure);
+	}
+
 	void Alchemy::CreateItemPatch()
 	{
-		static const auto hook =
+		const auto hook =
 			REL::Relocation<std::uintptr_t>(RE::Offset::AlchemyItem::CreateFromEffects, 0x16F);
 
 		if (!REL::make_pattern<"E8">().match(hook.address())) {
@@ -32,6 +47,38 @@ namespace Hooks
 			RE::Offset::CraftingSubMenus::AlchemyMenu::ModEffectivenessFunctor::Vtbl);
 
 		_ModEffectiveness = vtbl.write_vfunc(1, &Alchemy::ModEffectiveness);
+	}
+
+	static bool AllEffectsKnown(const RE::IngredientItem& a_ingredient)
+	{
+		const std::uint32_t count = a_ingredient.effects.size();
+		const std::uint16_t allFlags = (1 << count) - 1;
+
+		return (a_ingredient.gamedata.knownEffectFlags & allFlags) == allFlags;
+	}
+
+	bool Alchemy::IsKnownFailure(
+		const RE::IngredientItem& a_ingredient1,
+		const RE::IngredientItem& a_ingredient2)
+	{
+		const auto userSettings = Settings::UserSettings::GetSingleton();
+
+		if (userSettings->knownFailureFix.enabled) {
+			if (AllEffectsKnown(a_ingredient1) && AllEffectsKnown(a_ingredient2)) {
+
+				for (const auto& effect1 : a_ingredient1.effects) {
+					for (const auto& effect2 : a_ingredient2.effects) {
+						if (effect1->baseEffect == effect2->baseEffect) {
+							return false;
+						}
+					}
+				}
+
+				return true;
+			}
+		}
+
+		return _IsKnownFailure(a_ingredient1, a_ingredient2);
 	}
 
 	void Alchemy::ModifyAlchemyItem(

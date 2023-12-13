@@ -89,6 +89,7 @@ namespace Settings
 			return;
 		}
 
+		ReadSetting(knownFailureFix, root["knownFailureFix"]);
 		ReadSetting(mixtureNames, root["mixtureNames"]);
 		ReadSetting(impureCostFix, root["impureCostFix"]);
 
